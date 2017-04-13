@@ -15,6 +15,7 @@ from utils import leakyrelu, forward, instance_norm
 import tensorflow.contrib.slim as slim
 
 class CycleGAN():   
+    DEFAULTS = {}
     def __init__(self,dataA,dataB, hyperparams = {}, img_dim=(256,256,3)):
         self.__dict__.update(CycleGAN.DEFAULTS, **hyperparams)
         self.dataA = dataA
@@ -98,9 +99,7 @@ class CycleGAN():
 
     def create_image(self,im):
         #scale the pixel values from [-1,1] to [0,1]
-        minIm = np.min(im)
-        maxIm = np.max(im)
-        return (im - minIm) / (maxIm-minIm)
+        return (im + 1) / 2
     
     def generator(self):
         f = 7
@@ -230,8 +229,11 @@ class CycleGAN():
         self.D_A_loss_list = []
         self.D_B_loss_list = []
 
-        real_A_norm = instance_norm(self.real_A)
-        real_B_norm = instance_norm(self.real_B)
+        real_A_norm = self.real_A
+        real_B_norm = self.real_B
+
+##        real_A_norm = instance_norm(self.real_A)
+##        real_B_norm = instance_norm(self.real_B)
         
         #fDA
         disc_A_loss, D_A_params = self.fDx(self.disc_A, self.gen_A, real_B_norm, self.fake_B, self.real_label_A,self.fake_label_A, scope_name="A")
